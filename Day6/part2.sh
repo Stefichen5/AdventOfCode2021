@@ -3,22 +3,28 @@
 input="$1"
 DAYS=256
 
-FISHES="$(cat "$input")"
-IFS=',' read -r -a FISH_ARRAY <<< "$FISHES"
-
-#for every day
-for ((day=0 ; day<DAYS ; day++)) ; do
-	NR_OF_FISHES=${#FISH_ARRAY[@]}
-	for ((i=0 ; i<NR_OF_FISHES; i++)) ; do
-		VAL="${FISH_ARRAY[$i]}"
-		if [ "$VAL" -eq 0 ] ; then
-			FISH_ARRAY[$i]=6
-			FISH_ARRAY+=("8")
-		else
-			FISH_ARRAY[$i]=$((VAL-1))
-		fi
-	done
-	#echo "$day: ${FISH_ARRAY[@]}"
+#count base
+for ((i=0 ; i<9 ; i++)) ; do
+	FISH_ARRAY[$i]=$(tr -dc "$i" < "$input" | wc -c)
 done
 
-echo "${#FISH_ARRAY[@]}"
+for ((day=0 ; day<DAYS ; day++)) ; do
+	TMP=${FISH_ARRAY[6]}
+	#not beautiful because it's hardcoded but I don't have time for a more beautiful solution right now
+	FISH_ARRAY[6]=$((FISH_ARRAY[7]+FISH_ARRAY[0]))
+	FISH_ARRAY[7]=$((FISH_ARRAY[8]))
+	FISH_ARRAY[8]=$((FISH_ARRAY[0]))	
+	FISH_ARRAY[0]=$((FISH_ARRAY[1]))
+	FISH_ARRAY[1]=$((FISH_ARRAY[2]))
+	FISH_ARRAY[2]=$((FISH_ARRAY[3]))
+	FISH_ARRAY[3]=$((FISH_ARRAY[4]))
+	FISH_ARRAY[4]=$((FISH_ARRAY[5]))
+	FISH_ARRAY[5]=$((TMP))
+done
+
+SUM=0
+for ((i=0; i<9; i++)) ; do
+	SUM=$((SUM+FISH_ARRAY[i]))
+done
+
+echo "${SUM}"
